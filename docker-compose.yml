@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+
+  nginx:
+    build: ./nginx/
+    container_name: nginx
+    tty: true
+    ports: 
+      - 80:80
+    depends_on: 
+      - app
+    volumes:
+      - app_data:/var/www
+    networks:
+      - app-network
+
+  app:
+    build: ./app/
+    container_name: app-laravel
+    ports:
+      - 8000:8000
+    depends_on: 
+      - db
+      - redis
+    volumes:
+      - app_data:/var/www/html/app
+    networks:
+      - app-network
+    environment:
+      - "DB_PORT=3306"
+      - "DB_HOST=db"
+      - "REDIS_HOST=redis"
+
+  db:
+    image: mysql
+    command: --innodb-use-native-aio=0
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment: 
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=laravel"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  app_data:
+
+networks:
+  app-network:
+    
