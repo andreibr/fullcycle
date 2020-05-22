@@ -10,16 +10,15 @@ services:
       - 80:80
     depends_on: 
       - app
-    volumes:
-      - app_data:/var/www
     networks:
       - app-network
 
   app:
     build: ./app/
-    container_name: app-laravel
+    container_name: app
     ports:
       - 8000:8000
+      - 9000:9000
     depends_on: 
       - db
       - redis
